@@ -13,7 +13,8 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 // @mui material components
 import Card from "@mui/material/Card";
@@ -27,9 +28,14 @@ import MDTypography from "components/MDTypography";
 
 // Material Dashboard 2 React examples
 import DataTable from "examples/Tables/DataTable";
+import Table from "react-bootstrap/Table";
+
+import Button from "react-bootstrap/Button";
 
 // Data
 import data from "layouts/dashboard/components/Projects/data";
+import axios from "axios";
+import { Spinner, Badge } from "react-bootstrap";
 
 function Projects() {
   const { columns, rows } = data();
@@ -59,14 +65,62 @@ function Projects() {
     </Menu>
   );
 
+  const [projects, setProjects] = useState([]);
+  const [submitted, setSubmitted] = useState(false);
+  const [updatingProjectId, setUpdatingProjectId] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Fetch projects when the component mounts
+    fetchProjects();
+  }, []);
+
+  const fetchProjects = async () => {
+    try {
+      // Make a GET request to the backend endpoint
+      const response = await axios.get("http://localhost:8082/api/projects");
+
+      // Set the projects in the state
+      setProjects(response.data);
+      console.log(response.data[0]._id);
+    } catch (error) {
+      // Handle errors
+      console.error(error);
+    }
+  };
+  function handleUpdate(id) {
+    console.log(id);
+    setSubmitted(true);
+    setUpdatingProjectId(id);
+    axios({
+      method: "POST",
+      url: "http://localhost:8082/api/updateP",
+      data: { id: id },
+    })
+      .then((res) => {
+        console.log(res.data.status);
+        if (res.data.status === "ok") {
+          console.log("project updated");
+          const buildNumber = res.data.buildInfo.buildNumber;
+          console.log(buildNumber);
+          navigate(`/updateView/${buildNumber}`);
+        }
+        if (res.data.status === "bad") {
+          setSubmitted(false);
+          alert(res.data.error);
+        }
+        // handle successful response from server
+      })
+      .catch((error) => {});
+  }
   return (
     <Card>
       <MDBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
         <MDBox>
-          <MDTypography variant="h6" gutterBottom>
-            Projects
-          </MDTypography>
           <MDBox display="flex" alignItems="center" lineHeight={0}>
+            <MDTypography variant="h6" gutterBottom>
+              Projects
+            </MDTypography>
             <Icon
               sx={{
                 fontWeight: "bold",
@@ -76,9 +130,6 @@ function Projects() {
             >
               done
             </Icon>
-            <MDTypography variant="button" fontWeight="regular" color="text">
-              &nbsp;<strong>30 done</strong> this month
-            </MDTypography>
           </MDBox>
         </MDBox>
         <MDBox color="text" px={2}>
@@ -89,13 +140,56 @@ function Projects() {
         {renderMenu}
       </MDBox>
       <MDBox>
-        <DataTable
-          table={{ columns, rows }}
-          showTotalEntries={false}
-          isSorted={false}
-          noEndBorder
-          entriesPerPage={false}
-        />
+        <Table striped bordered hover>
+          <thead>
+            <tr>
+              <th>Project Name</th>
+              <th>Version</th>
+              <th>EndPoint</th>
+
+              <th>
+                <center>Action</center>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {projects.map((project, index) => (
+              <tr key={index}>
+                <td>{project.jsonParam.projectName}</td>
+                <td>
+                  <Badge bg="success">v1.{project.jsonParam.versionNum}</Badge>
+                </td>
+                <td style={{ color: "blue", textDecoration: "underline", textAlign: "center" }}>
+                  <a href={"http://" + project.endpoint} target="_blank">
+                    http://{project.endpoint}
+                  </a>
+                </td>
+
+                <td>
+                  <center>
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => handleUpdate(project._id)}
+                      disabled={updatingProjectId === project._id}
+                    >
+                      {submitted && updatingProjectId === project._id ? <Spinner /> : "Update"}
+                      <Icon>update</Icon>
+                    </button>{" "}
+                    <button
+                      className="btn btn-info"
+                      onClick={() => navigate(`/monitor/${project._id}`)}
+                    >
+                      Monitor <Icon>monitor</Icon>
+                    </button>{" "}
+                    <button className="btn btn-secondary">
+                      Delete <Icon>delete</Icon>
+                    </button>{" "}
+                  </center>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
       </MDBox>
     </Card>
   );

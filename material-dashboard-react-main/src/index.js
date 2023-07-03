@@ -20,6 +20,7 @@ import App from "App";
 import "bootstrap/dist/css/bootstrap.min.css";
 import UserContext from "context/userContext";
 import { UserProvider } from "context/userContext";
+import { NotifContextProvider } from "context/notificationContext";
 
 // Material Dashboard 2 React Context Provider
 import { MaterialUIControllerProvider } from "context";
@@ -28,7 +29,9 @@ ReactDOM.render(
   <BrowserRouter>
     <MaterialUIControllerProvider>
       <UserProvider>
-        <App />
+        <NotifContextProvider>
+          <App />
+        </NotifContextProvider>
       </UserProvider>
     </MaterialUIControllerProvider>
   </BrowserRouter>,

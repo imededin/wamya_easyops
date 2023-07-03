@@ -24,12 +24,9 @@ import MDButton from "components/MDButton";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
-import ReportsBarChart from "examples/Charts/BarCharts/ReportsBarChart";
-import ReportsLineChart from "examples/Charts/LineCharts/ReportsLineChart";
 import ComplexStatisticsCard from "examples/Cards/StatisticsCards/ComplexStatisticsCard";
 
 // Data
-import reportsBarChartData from "layouts/dashboard/data/reportsBarChartData";
 import reportsLineChartData from "layouts/dashboard/data/reportsLineChartData";
 
 // Dashboard components
@@ -37,15 +34,78 @@ import Projects from "layouts/dashboard/components/Projects";
 import OrdersOverview from "layouts/dashboard/components/OrdersOverview";
 
 import UserContext from "../../context/userContext";
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import Card from "@mui/material/Card";
-import { Navigate } from "react-router-dom";
-
+import NotifContext from "context/notificationContext";
+import MDSnackbar from "components/MDSnackbar";
+import axios from "axios";
 function Dashboard() {
   const { sales, tasks } = reportsLineChartData;
   const userData = useContext(UserContext);
-  // const storedUserData = localStorage.getItem("userData");
-  //console.log(userData.email);
+  const { success, projectName, toggleSuccess } = useContext(NotifContext);
+
+  const renderSuccessSB = (
+    <MDSnackbar
+      color="success"
+      icon="check"
+      title={`Project ${projectName}`}
+      content="Please check your mail to view deployment status!"
+      dateTime="Now"
+      open={success}
+      onClose={toggleSuccess}
+      close={!success}
+    />
+  );
+  const [projects, setProjects] = useState([]);
+  const [awsCount, setAwsCount] = useState(0);
+  const [azureCount, setAzureCount] = useState(0);
+  const [vmCount, setVmCount] = useState(0);
+
+  const fetchProjects = async () => {
+    try {
+      // Make a GET request to the backend endpoint
+      const response = await axios.get("http://localhost:8082/api/projects");
+
+      // Set the projects in the state
+      setProjects(response.data);
+    } catch (error) {
+      // Handle errors
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+  const statistics = async () => {
+    try {
+      let awsCount = 0;
+      let azureCount = 0;
+      let vmCount = 0;
+
+      projects.forEach((project) => {
+        const infraType = project.jsonParam.infraType;
+        if (infraType === "AWS EKS") {
+          awsCount++;
+        } else if (infraType === "AZURE AKS" || infraType === "Existant K8S cluster") {
+          azureCount++;
+        } else if (infraType === "Existant VM") {
+          vmCount++;
+        }
+      });
+
+      setAwsCount(awsCount);
+
+      setAzureCount(azureCount);
+
+      setVmCount(vmCount);
+    } catch (error) {
+      // Handle errors
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    statistics();
+  }, [projects]);
 
   return (
     <DashboardLayout>
@@ -53,67 +113,53 @@ function Dashboard() {
       <h3>
         hello <span style={{ color: "green" }}>{userData.fname}</span>
       </h3>
+      {renderSuccessSB}
       <MDBox py={3}>
         <Grid container spacing={3}>
-          <Grid item xs={12} md={6} lg={3}>
+          <Grid item xs={12} md={6} lg={4}>
             <MDBox mb={1.5}>
               <ComplexStatisticsCard
                 color="dark"
-                icon="weekend"
-                title="Bookings"
-                count={281}
+                title="Aws EKS"
+                count={awsCount}
                 percentage={{
                   color: "success",
-                  amount: "+55%",
-                  label: "than lask week",
+                  amount: (awsCount / projects.length) * 100 + "%",
+                  label: "of total projects",
                 }}
               />
             </MDBox>
           </Grid>
-          <Grid item xs={12} md={6} lg={3}>
+          <Grid item xs={12} md={6} lg={4}>
             <MDBox mb={1.5}>
               <ComplexStatisticsCard
                 icon="leaderboard"
-                title="Today's Users"
-                count="2,300"
+                title="Azure AKS"
+                count={azureCount}
                 percentage={{
                   color: "success",
-                  amount: "+3%",
-                  label: "than last month",
+                  amount: (azureCount / projects.length) * 100 + "%",
+                  label: "of total projects",
                 }}
               />
             </MDBox>
           </Grid>
-          <Grid item xs={12} md={6} lg={3}>
+          <Grid item xs={12} md={6} lg={4}>
             <MDBox mb={1.5}>
               <ComplexStatisticsCard
                 color="success"
                 icon="store"
-                title="Revenue"
-                count="34k"
+                title="VM"
+                count={vmCount}
                 percentage={{
                   color: "success",
-                  amount: "+1%",
-                  label: "than yesterday",
+                  amount: (vmCount / projects.length) * 100 + "%",
+                  label: "of total projects",
                 }}
               />
             </MDBox>
           </Grid>
-          <Grid item xs={12} md={6} lg={3}>
-            <MDBox mb={1.5}>
-              <ComplexStatisticsCard
-                color="primary"
-                icon="person_add"
-                title="Followers"
-                count="+91"
-                percentage={{
-                  color: "success",
-                  amount: "",
-                  label: "Just updated",
-                }}
-              />
-            </MDBox>
-          </Grid>
+
           <Grid item xs={12} md={6} lg={3}>
             <Card>
               <MDBox mb={8} position="absolute">
@@ -146,11 +192,8 @@ function Dashboard() {
         </MDBox>
         <MDBox>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={6} lg={8}>
+            <Grid item xs={12} md={6} lg={12}>
               <Projects />
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <OrdersOverview />
             </Grid>
           </Grid>
         </MDBox>

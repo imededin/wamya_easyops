@@ -7,7 +7,7 @@ import { useContext } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import NotifContext from "context/notificationContext";
 
-function DeploymentView() {
+function UpdateView() {
   const { buildNumber } = useParams();
   console.log(buildNumber);
   const location = useLocation();
@@ -19,9 +19,8 @@ function DeploymentView() {
   const userData = useContext(UserContext);
   const Navigate = useNavigate();
   const { success, projectName, setProjectName, toggleSuccess } = useContext(NotifContext);
-  setProjectName(location.state.projectName);
   useEffect(() => {
-    const url = `http://localhost:8082/api/deployV?email=${userData.email}&buildNumber=${buildNumber}`;
+    const url = `http://localhost:8082/api/updateV?buildNumber=${buildNumber}`;
     const fetchLogs = async () => {
       try {
         const response = await fetch(url);
@@ -31,8 +30,7 @@ function DeploymentView() {
           const data = new TextDecoder().decode(chunk.value);
           setLogEntries((prevEntries) => [...prevEntries, data]);
           if (data.includes("Finished: SUCCESS")) {
-            toggleSuccess();
-
+            alert("project updated successfully!");
             Navigate("/");
             // Set the success flag to true if the expression is found in the logs
           }
@@ -74,15 +72,19 @@ function DeploymentView() {
       <DashboardNavbar />
       {isLoading && (
         <Card>
-          <h1>Deployment in Progress </h1>
+          <h1>Update in Progress </h1>
 
           <MemoizedLogEntries />
           <center>{!isConnected && <Spinner animation="border" variant="success" />}</center>
         </Card>
       )}
-      {!isLoading && <MemoizedLogEntries />}
+      {!isLoading && (
+        <Card>
+          <MemoizedLogEntries />
+        </Card>
+      )}
     </DashboardLayout>
   );
 }
 
-export default DeploymentView;
+export default UpdateView;

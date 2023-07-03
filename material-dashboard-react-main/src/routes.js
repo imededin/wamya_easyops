@@ -45,6 +45,7 @@ import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
 import UserHome from "layouts/Deployment/deployment";
 import deploymentView from "layouts/Deployment/deploymentView";
+import FileUpload from "layouts/Deployment/upload";
 
 // @mui icons
 import Icon from "@mui/material/Icon";
@@ -63,7 +64,7 @@ const routes = [
     type: "collapse",
     name: "Deploy Project",
     key: "Form",
-    icon: <Icon fontSize="small">receipt_long</Icon>,
+    icon: <Icon>cloud_upload</Icon>,
     route: "/project",
     component: <UserHome />,
   },
@@ -72,8 +73,8 @@ const routes = [
     name: "Tables",
     key: "tables",
     icon: <Icon fontSize="small">table_view</Icon>,
-    route: "/tables",
-    component: <Tables />,
+    route: "/upload",
+    component: <FileUpload />,
   },
 
   {
