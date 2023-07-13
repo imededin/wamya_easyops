@@ -44,6 +44,7 @@ import Profile from "layouts/profile";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
 import UserHome from "layouts/Deployment/deployment";
+import MsDeploy from "layouts/Deployment/msDeployment";
 import deploymentView from "layouts/Deployment/deploymentView";
 import FileUpload from "layouts/Deployment/upload";
 
@@ -70,11 +71,11 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Tables",
-    key: "tables",
-    icon: <Icon fontSize="small">table_view</Icon>,
-    route: "/upload",
-    component: <FileUpload />,
+    name: "Deploy MS project",
+    key: "Form",
+    icon: <Icon>cloud_upload</Icon>,
+    route: "/msDeployment",
+    component: <MsDeploy />,
   },
 
   {

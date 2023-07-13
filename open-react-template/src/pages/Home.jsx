@@ -15,7 +15,7 @@ function Home() {
   const [admin, setAdmin] = useState(false);
 
   useEffect(() => {
-    fetch("/api", {
+    fetch("/api/hello", {
       method: "GET",
       crossDomain: true,
       headers: {
@@ -27,7 +27,7 @@ function Home() {
       //   token: window.localStorage.getItem("token"),
       // }),
     })
-      .then((res) => res.json())
+      .then((res) => console.log(res))
       .then((data) => {
         console.log(data, "userData");
       });

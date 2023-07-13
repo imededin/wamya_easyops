@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-require("../models/deploymentSchema");
+require("../models/deploymentMSchema");
 
 const { Mutex } = require("async-mutex");
 const { execSync } = require("child_process");
@@ -28,13 +28,14 @@ mongoose
     console.log("Connected to database");
   })
   .catch((e) => console.log(e));
-const Deploy = mongoose.model("Deployment");
+
+const DeployMS = mongoose.model("DeploymentMS");
 
 async function triggerPipeline(params) {
   try {
     var pipelineParams;
 
-    const { jsonParam, file } = params;
+    const { jsonParam, file, services } = params;
     const email = JSON.parse(jsonParam).email;
     const projectName = JSON.parse(jsonParam).projectName;
     console.log(email, projectName);
@@ -47,17 +48,18 @@ async function triggerPipeline(params) {
       pipelineParams = {
         jsonParam: jsonParam,
         file: base64File,
+        services: services,
       };
     } else {
       pipelineParams = params;
     }
     console.log(pipelineParams);
     const info = await jenkins.job.build({
-      name: "EasyOps",
+      name: "EasyOps-MS",
       parameters: pipelineParams,
     });
     execSync("sleep 10");
-    const l = await jenkins.build.get("EasyOps", "lastBuild");
+    const l = await jenkins.build.get("EasyOps-MS", "lastBuild");
     console.log(l.number);
 
     //const buildNum = info.data.executable;
@@ -87,9 +89,10 @@ exports.deploy = async (req, res) => {
   upload.single("file")(req, res, async (err) => {
     try {
       const deployInfo = JSON.parse(req.body.data);
+      const services = JSON.parse(req.body.services);
       const email = deployInfo["email"];
       const projectName = deployInfo["projectName"];
-      const oldProject = await Deploy.findOne({
+      const oldProject = await DeployMS.findOne({
         "jsonParam.projectName": projectName,
         "jsonParam.email": email,
       });
@@ -109,6 +112,7 @@ exports.deploy = async (req, res) => {
         params = {
           jsonParam: JSON.stringify(deployInfo),
           file: req.file,
+          services: JSON.stringify(services),
         };
 
         //console.log(params);
@@ -121,6 +125,7 @@ exports.deploy = async (req, res) => {
       } else {
         params = {
           jsonParam: JSON.stringify(deployInfo),
+          services: JSON.stringify(services),
         };
         console.log(params);
       }
@@ -146,10 +151,12 @@ exports.addToDB = async (req, res) => {
   upload.single("file")(req, res, async (err) => {
     try {
       const deployInfo = JSON.parse(req.body.jsonParam);
+      const services = JSON.parse(req.body.services);
       const endpoint = req.body.endpoint;
-      const newProject = await Deploy.create({
+      const newProject = await DeployMS.create({
         jsonParam: deployInfo,
         endpoint: endpoint,
+        services: services,
         file: {
           metadata: req.file,
           content: fs.readFileSync(req.file.path),

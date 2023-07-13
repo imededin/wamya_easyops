@@ -1,8 +1,10 @@
 const { Readable } = require("stream");
 const Jenkins = require("jenkins");
 
+const jenkinsUrl =
+  process.env.JENKINS_URL || "http://jenkins:123456@172.176.170.82:8080";
 const jenkins = new Jenkins({
-  baseUrl: "http://jenkins:123456@172.176.170.82:8080",
+  baseUrl: jenkinsUrl,
 });
 
 function deployView(req, res) {

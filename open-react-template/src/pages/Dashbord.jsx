@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 const getData = async () => {
-  const res = await fetch("http://127.0.0.1:8082/api/userData", {
+  const res = await fetch("/api/userData", {
     method: "POST",
     crossDomain: true,
     headers: {
@@ -40,7 +40,7 @@ export default function UserDetails() {
   useEffect(() => {
     if (userData) {
       const encodedUserData = encodeURIComponent(JSON.stringify(userData));
-      window.location.href = `http://127.0.0.1:3000?userData=${encodedUserData}`;
+      window.location.href = `http://127.0.0.1:3003?userData=${encodedUserData}`;
     }
   }, [userData]);
 

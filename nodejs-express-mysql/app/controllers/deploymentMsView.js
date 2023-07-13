@@ -2,17 +2,18 @@ const { Readable } = require("stream");
 const Jenkins = require("jenkins");
 
 const jenkinsUrl =
-  process.env.JENKINS_URL || "http://jenkins:123456@127.0.0.1:8080";
+  process.env.JENKINS_URL || "http://jenkins:123456@172.176.170.82:8080";
 const jenkins = new Jenkins({
   baseUrl: jenkinsUrl,
 });
 
-function updateView(req, res) {
+function deployView(req, res) {
   const params = new URLSearchParams(req.url.split("?")[1]);
+  const email = params.get("email");
   const buildNum = params.get("buildNumber");
 
-  console.log(buildNum);
-  const logStream = jenkins.build.logStream("easyops-update", buildNum);
+  console.log(email, buildNum);
+  const logStream = jenkins.build.logStream("EasyOps-MS", buildNum);
 
   res.writeHead(200, {
     "Content-Type": "text/plain",
@@ -33,4 +34,4 @@ function updateView(req, res) {
     res.end("Error occurred while streaming log.");
   });
 }
-exports.updateView = updateView;
+exports.deployView = deployView;

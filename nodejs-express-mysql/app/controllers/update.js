@@ -12,8 +12,10 @@ const yaml = require("js-yaml");
 
 const Jenkins = require("jenkins");
 
+const jenkinsUrl =
+  process.env.JENKINS_URL || "http://jenkins:123456@127.0.0.1:8080";
 const jenkins = new Jenkins({
-  baseUrl: "http://jenkins:123456@172.176.170.82:8080",
+  baseUrl: jenkinsUrl,
 });
 const mongoUrl =
   process.env.MONGO_DB_URL || "mongodb://root:example@127.0.0.1:27017/admin";

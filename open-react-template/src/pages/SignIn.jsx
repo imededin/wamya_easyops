@@ -15,7 +15,7 @@ function SignIn() {
     e.preventDefault();
 
     console.log(email, password); //);
-    fetch("http://localhost:8082/api/login", {
+    fetch("/api/login", {
       method: "POST",
       crossDomain: true,
       headers: {
@@ -33,7 +33,7 @@ function SignIn() {
         if (data.status == "ok") {
           window.localStorage.setItem("token", data.data);
           window.localStorage.setItem("loggedIn", true);
-          window.location.href = "/Dashbord";
+          navigate("/Dashbord");
         } else {
           alert(" Password or email wrong !");
         }

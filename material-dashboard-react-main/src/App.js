@@ -26,6 +26,7 @@ import Icon from "@mui/material/Icon";
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import DeploymentView from "layouts/Deployment/deploymentView";
+import DeploymentMsView from "layouts/Deployment/deploymentMsView";
 import UpdateView from "layouts/Deployment/updateView";
 import MonitorView from "layouts/Deployment/monitor";
 
@@ -196,6 +197,7 @@ export default function App() {
         {getRoutes(routes)}
 
         <Route path="/deploymentView/:buildNumber" element={<DeploymentView />} />
+        <Route path="/deploymentMsView/:buildNumber" element={<DeploymentMsView />} />
         <Route path="/updateView/:buildNumber" element={<UpdateView />} />
         <Route path="/monitor/:id" element={<MonitorView />} />
       </Routes>

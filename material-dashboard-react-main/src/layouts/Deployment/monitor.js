@@ -121,11 +121,19 @@ function MonitorView() {
                   </td>
                   <td>
                     {" "}
-                    <center>{pod.status.conditions[1].status}</center>
+                    <center>
+                      {pod.status.conditions && pod.status.conditions[1]
+                        ? pod.status.conditions[1].status
+                        : null}
+                    </center>
                   </td>
                   <td>
                     {" "}
-                    <center>{pod.status.containerStatuses[0].restartCount}</center>
+                    <center>
+                      {pod.status.containerStatuses && pod.status.containerStatuses[0]
+                        ? pod.status.containerStatuses[0].restartCount
+                        : null}
+                    </center>
                   </td>
                   <td style={{ color: "blue", textDecoration: "underline", textAlign: "center" }}>
                     {pod.status.podIP}

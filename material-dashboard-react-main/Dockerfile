@@ -19,4 +19,4 @@ RUN npm run build
 RUN npm install -g serve
 
 # Start the app
-CMD ["serve","dist"]
+CMD ["serve","build"]
