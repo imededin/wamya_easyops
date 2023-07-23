@@ -1,2 +1,2 @@
 /home/ati/Pictures
-![Image Description](/home/ati/Pictures/deploy-form.png)
+![alt text](https://github.com/imededin/wamya_easyops/blob/master/deploy-form.png?raw=true)
